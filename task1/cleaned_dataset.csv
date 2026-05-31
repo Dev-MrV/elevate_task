@@ -1,0 +1,11 @@
+ID,Name,Gender,Age,Salary,Department
+1,John,Male,25.0,45000.0,IT
+2,Sarah,Female,28.0,52000.0,HR
+3,David,Male,30.0,60000.0,IT
+4,Mary,Female,31.0,58888.88888888889,Finance
+5,John,Male,25.0,45000.0,IT
+6,Alex,Male,45.0,90000.0,Management
+7,Emma,Female,29.0,58000.0,HR
+8,Chris,Male,30.0,65000.0,IT
+9,Sophia,Female,27.0,54000.0,IT
+10,Liam,Male,30.0,61000.0,Finance
