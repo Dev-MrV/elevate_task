@@ -63,10 +63,22 @@ if uploaded_file is not None:
 
             st.dataframe(missing_df)
 
-            fig, ax = plt.subplots(figsize=(8, 4))
-            missing_df.plot(kind="bar", ax=ax)
-            ax.set_title("Missing Values by Column")
-            st.pyplot(fig)
+            fig, ax = plt.subplots(figsize=(4,2 ))
+
+            missing_df.plot(
+                kind="bar",
+                ax=ax,
+                color="skyblue"
+            )
+
+            ax.set_title("Missing Values by Column", fontsize=8)
+            ax.set_xlabel("")
+            ax.tick_params(axis='x', labelrotation=45)
+            ax.tick_params(axis='both', labelsize=6)
+
+            plt.tight_layout()
+
+            st.pyplot(fig, use_container_width=False)
 
         else:
             st.success("No missing values found.")
@@ -187,16 +199,22 @@ if uploaded_file is not None:
 
             if numeric_df.shape[1] > 1:
 
-                fig, ax = plt.subplots(figsize=(10, 6))
+                fig, ax = plt.subplots(figsize=(4, 2))
 
                 sns.heatmap(
                     numeric_df.corr(),
                     annot=True,
+                    fmt=".2f",
                     cmap="coolwarm",
+                    annot_kws={"size": 5},
                     ax=ax
                 )
 
-                st.pyplot(fig)
+                ax.set_title("Feature Correlation", fontsize=8)
+
+                plt.tight_layout()
+
+                st.pyplot(fig, use_container_width=False)
 
             else:
                 st.warning(
@@ -219,7 +237,7 @@ if uploaded_file is not None:
                     numeric_cols
                 )
 
-                fig, ax = plt.subplots(figsize=(8, 4))
+                fig, ax = plt.subplots(figsize=(4, 2))
 
                 sns.histplot(
                     final_df[selected_col],
@@ -227,7 +245,16 @@ if uploaded_file is not None:
                     ax=ax
                 )
 
-                st.pyplot(fig)
+                ax.set_title(
+                    f"{selected_col} Distribution",
+                    fontsize=4
+                )
+
+                ax.tick_params(axis='both', labelsize=6)
+
+                plt.tight_layout()
+
+                st.pyplot(fig, use_container_width=False)
 
             # Download Dataset
             st.header("Download Cleaned Dataset")
