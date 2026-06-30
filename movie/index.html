@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Movie Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            purple: '#9333ea', // Primary accent
+                            pink: '#ec4899',   // Secondary accent
+                            slate: '#0f172a'   // Deep background
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 flex-col items-center justify-center bg-gray-950/80 backdrop-blur-sm hidden">
+        <div class="glass-spinner mb-4"></div>
+        <p class="text-brand-purple font-semibold tracking-widest uppercase text-sm animate-pulse">Running Neural Engine...</p>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="w-80 bg-slate-900 border-r border-gray-800 flex flex-col shadow-2xl z-10">
+            <div class="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-purple to-brand-pink flex items-center justify-center shadow-lg shadow-brand-purple/20">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path></svg>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-white">Cine<span class="text-brand-purple">Match</span> AI</h1>
+            </div>
+            
+            <form id="recommend-form" class="flex-1 overflow-y-auto p-6 space-y-8">
+                
+                <!-- Target Industries Filter -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-medium text-gray-400 uppercase tracking-wider">Target Industries</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="industry" value="ml" class="form-checkbox h-4 w-4 text-brand-purple rounded border-gray-700 bg-gray-900 focus:ring-brand-purple" checked>
+                            <span class="text-sm text-gray-300">Malayalam (ML)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="industry" value="ta" class="form-checkbox h-4 w-4 text-brand-purple rounded border-gray-700 bg-gray-900 focus:ring-brand-purple" checked>
+                            <span class="text-sm text-gray-300">Tamil (TA)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="industry" value="hi" class="form-checkbox h-4 w-4 text-brand-purple rounded border-gray-700 bg-gray-900 focus:ring-brand-purple" checked>
+                            <span class="text-sm text-gray-300">Hindi (HI)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="industry" value="te" class="form-checkbox h-4 w-4 text-brand-purple rounded border-gray-700 bg-gray-900 focus:ring-brand-purple" checked>
+                            <span class="text-sm text-gray-300">Telugu (TE)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="industry" value="en" class="form-checkbox h-4 w-4 text-brand-purple rounded border-gray-700 bg-gray-900 focus:ring-brand-purple" checked>
+                            <span class="text-sm text-gray-300">Hollywood (EN)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Alpha Tuning Slider -->
+                <div class="space-y-2 pt-4 border-t border-gray-800">
+                    <div class="flex justify-between">
+                        <label for="alpha" class="block text-xs font-medium text-gray-400 uppercase tracking-wider">Hybrid Engine Weight</label>
+                        <span id="alpha-val" class="text-xs font-mono text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded">1.0</span>
+                    </div>
+                    <input type="range" id="alpha" name="alpha" min="0" max="1" value="1.0" step="0.1"
+                        class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-brand-purple">
+                    <div class="flex justify-between text-[10px] text-gray-500 font-mono">
+                        <span>Collab Filter</span>
+                        <span>Content Match</span>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="p-6 border-t border-gray-800 bg-slate-900/50">
+                <button type="submit" form="recommend-form" class="w-full relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-purple to-brand-pink rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200"></div>
+                    <div class="relative w-full bg-gray-900 rounded-lg px-4 py-3 flex items-center justify-center transition-all group-hover:bg-gray-800">
+                        <svg class="w-5 h-5 mr-2 text-brand-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <span class="font-bold text-white tracking-wide">Find Matches</span>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-y-auto bg-gray-950">
+            <!-- Header Search -->
+            <header class="h-24 border-b border-gray-800 flex items-center px-10 bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
+                <div class="relative w-full max-w-2xl mx-auto">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="movie-search" list="movie-list" placeholder="Search for a movie (e.g. Movie 100 (ML))..."
+                        class="w-full bg-gray-900 border border-gray-700 rounded-2xl pl-12 pr-4 py-4 text-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all placeholder-gray-600 shadow-inner">
+                    <datalist id="movie-list">
+                        <!-- Populated by JS -->
+                    </datalist>
+                </div>
+            </header>
+
+            <div class="p-10 w-full max-w-screen-2xl mx-auto">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-light text-white">Top <span class="font-bold">Recommendations</span></h2>
+                    <span id="status-badge" class="px-3 py-1 bg-gray-800 rounded-full text-xs font-semibold text-gray-400 border border-gray-700">Awaiting Input</span>
+                </div>
+
+                <!-- Grid for 5 columns as requested -->
+                <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <!-- Cards will be injected here -->
+                </div>
+                
+                <!-- Initial empty state -->
+                <div id="empty-state" class="w-full h-64 flex flex-col items-center justify-center text-gray-500">
+                    <svg class="w-16 h-16 mb-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path></svg>
+                    <p class="text-lg">Select a movie and industry preferences to get started.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Movie Card Template -->
+    <template id="card-template">
+        <div class="movie-card bg-slate-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-brand-purple transition-all duration-300 shadow-lg group relative cursor-pointer">
+            <div class="absolute top-3 right-3 z-10">
+                <span class="match-score px-2 py-1 bg-gray-900/80 backdrop-blur-md rounded border border-gray-700 text-xs font-bold text-white shadow-xl"></span>
+            </div>
+            <div class="relative overflow-hidden aspect-[2/3]">
+                <img src="" alt="Poster" class="card-poster w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent"></div>
+            </div>
+            <div class="p-4 absolute bottom-0 w-full">
+                <div class="flex gap-2 mb-2">
+                    <span class="lang-badge px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-purple/20 text-brand-purple border border-brand-purple/30"></span>
+                </div>
+                <h3 class="card-title text-base font-bold text-white leading-tight mb-1 truncate"></h3>
+                <p class="card-genres text-xs text-gray-400 truncate"></p>
+            </div>
+        </div>
+    </template>
+
+    <script src="main.js"></script>
+</body>
+</html>
